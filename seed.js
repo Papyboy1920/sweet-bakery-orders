@@ -17,7 +17,7 @@
 // owner /store edits are never wiped).
 // ============================================================
 
-const CATALOG_VERSION = 3;
+const CATALOG_VERSION = 4;
 
 const SEED_CATALOG = {
   departments: [
@@ -181,6 +181,15 @@ const SEED_CATALOG = {
             { id: "guarapo", name: "Guarapo", price: 5.00, unit: "glass", active: true, image: "guarapo.jpg",
               tag: "Fresh pressed",
               desc: "Fresh-pressed sugarcane juice. Pure Cuba in a glass." }
+          ]
+        },
+        {
+          id: "jugos-frescos",
+          name: "Jugos frescos",
+          items: [
+            { id: "jugo-naranja", name: "Freshly Squeezed Orange Juice", price: 6.50, unit: "glass", active: true, image: "fresh-orange-juice.jpg",
+              tag: "Fresh squeezed",
+              desc: "Freshly squeezed orange juice, served chilled — pure sunshine in a glass." }
           ]
         }
       ]
