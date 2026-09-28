@@ -99,12 +99,55 @@ function mergeCatalog(live, seed) {
 }
 
 // ---------- Migraciones puntuales de fotos ----------
-// Reservado para futuras correcciones de imágenes sin tocar lo del dueño.
-// Solo se aplican si el valor actual es EXACTAMENTE el viejo.
-// Idempotentes. (Semilla inicial: sin pasos.)
-const IMAGE_FIXES = {};
+// Corrigen imágenes sin tocar lo del dueño: solo se aplican si el valor
+// actual es EXACTAMENTE el viejo. Idempotentes.
+// v2 (2026-09-28): reemplaza los 8 placeholders genéricos por departamento
+// con 29 fotos únicas por plato (pedido de Portal).
+const IMAGE_FIXES = {
+  "cuban-sandwich":      { old: "dept-sandwiches.jpg", new: "cuban-sandwich.jpg" },
+  "media-noche":          { old: "dept-sandwiches.jpg", new: "media-noche.jpg" },
+  "pan-bistec":           { old: "dept-sandwiches.jpg", new: "pan-bistec.jpg" },
+  "pan-lechon":           { old: "dept-sandwiches.jpg", new: "pan-lechon.jpg" },
+  "pan-croqueta":         { old: "dept-sandwiches.jpg", new: "pan-croqueta.jpg" },
+  "croq-6":               { old: "dept-croquetas.jpg",  new: "croq-6.jpg" },
+  "croq-12":              { old: "dept-croquetas.jpg",  new: "croq-12.jpg" },
+  "past-guayaba":         { old: "dept-pastelitos.jpg", new: "past-guayaba.jpg" },
+  "past-queso":           { old: "dept-pastelitos.jpg", new: "past-queso.jpg" },
+  "past-carne":           { old: "dept-pastelitos.jpg", new: "past-carne.jpg" },
+  "past-guayaba-queso":   { old: "dept-pastelitos.jpg", new: "past-guayaba-queso.jpg" },
+  "pizza-pastel":         { old: "dept-pastelitos.jpg", new: "pizza-pastel.jpg" },
+  "emp-jamon-queso":      { old: "dept-pastelitos.jpg", new: "emp-jamon-queso.jpg" },
+  "emp-pollo":            { old: "dept-pastelitos.jpg", new: "emp-pollo.jpg" },
+  "emp-carne":            { old: "dept-pastelitos.jpg", new: "emp-carne.jpg" },
+  "cafecito":             { old: "dept-cafe.jpg",       new: "cafecito.jpg" },
+  "cortadito":            { old: "dept-cafe.jpg",       new: "cortadito.jpg" },
+  "colada":               { old: "dept-cafe.jpg",       new: "colada.jpg" },
+  "cafe-leche-s":         { old: "dept-cafe.jpg",       new: "cafe-leche-s.jpg" },
+  "cafe-leche-l":         { old: "dept-cafe.jpg",       new: "cafe-leche-l.jpg" },
+  "huevos-fritos":        { old: "dept-desayunos.jpg",  new: "huevos-fritos.jpg" },
+  "huevos-revueltos":     { old: "dept-desayunos.jpg",  new: "huevos-revueltos.jpg" },
+  "tortilla-espanola":    { old: "dept-desayunos.jpg",  new: "tortilla-espanola.jpg" },
+  "tostadas":             { old: "dept-desayunos.jpg",  new: "tostadas.jpg" },
+  "tortilla-gusto":       { old: "dept-desayunos.jpg",  new: "tortilla-gusto.jpg" },
+  "batido-mango":         { old: "dept-batidos.jpg",    new: "batido-mango.jpg" },
+  "batido-mamey":         { old: "dept-batidos.jpg",    new: "batido-mamey.jpg" },
+  "batido-guayaba":       { old: "dept-batidos.jpg",    new: "batido-guayaba.jpg" },
+  "guarapo":              { old: "dept-batidos.jpg",    new: "guarapo.jpg" }
+};
 function applyImageFixes(catalog) {
-  return 0;
+  let fixed = 0;
+  for (const d of (catalog && catalog.departments) || []) {
+    for (const c of d.categories || []) {
+      for (const it of c.items || []) {
+        const fx = it && IMAGE_FIXES[it.id];
+        if (fx && it.image === fx.old) {
+          it.image = fx.new;
+          fixed++;
+        }
+      }
+    }
+  }
+  return fixed;
 }
 
 async function init() {
