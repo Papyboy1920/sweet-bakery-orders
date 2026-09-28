@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sweet Bakery Cafeteria — Order Online</title>
+<style>
+  .zelle-pay { background:#fffbe8; border:2px solid #d4a017; border-radius:12px; padding:16px; margin-bottom:14px; text-align:center; color:#3a2a12; }
+  .zelle-pay .zp-t { font-size:17px; font-weight:800; margin-bottom:6px; }
+  .zelle-pay .zp-handle { font-size:24px; font-weight:800; color:#1a7a3a; margin:8px 0; word-break:break-all; }
+  .zelle-pay .zp-note { font-size:13px; color:#6b5a3e; margin-top:6px; }
+  .zp-change { display:block; text-align:center; margin-top:10px; font-size:13px; color:#8a5a1e; cursor:pointer; }
+  :root { --caramel:#c97b2d; --caramel-d:#a05f1c; --gold:#e8b34b; --bg:#faf3e6; --soft:#f3e7d0; --card:#fffdf8; --txt:#3a2413; --mut:#8a6f52; --line:#e3d3b8; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--txt); }
+  header { background:linear-gradient(135deg,#2e1a0c 0%,#5a3416 55%,#c97b2d 100%); color:#fff; padding:16px 16px 14px; position:sticky; top:0; z-index:20; box-shadow:0 2px 12px rgba(160,95,28,.45); border-bottom:3px solid var(--gold); }
+  header h1 { margin:0; font-size:22px; letter-spacing:.3px; }
+  header h1 span { color:var(--gold); }
+  header p { margin:5px 0 0; font-size:12.5px; opacity:.95; line-height:1.5; }
+  .hero { width:100%; max-height:210px; object-fit:cover; display:block; border-bottom:3px solid var(--gold); }
+  main { max-width:640px; margin:0 auto; padding:14px 14px 110px; }
+  .step { display:none; } .step.on { display:block; animation:fade .2s; }
+  @keyframes fade { from{opacity:0; transform:translateY(6px);} to{opacity:1;} }
+  h2 { font-size:20px; margin:6px 0 12px; color:var(--caramel-d); }
+  .opt2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .type-card { background:var(--card); border:2px solid var(--line); border-radius:14px; padding:22px 10px; text-align:center; cursor:pointer; }
+  .type-card.sel { border-color:var(--caramel); box-shadow:0 0 0 2px var(--caramel) inset; background:var(--soft); }
+  .type-card .ic { font-size:38px; } .type-card .t { font-weight:700; margin-top:8px; } .type-card .s { font-size:12px; color:var(--mut); margin-top:4px; }
+  .dept-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .dept { background:var(--card); border:2px solid var(--line); border-radius:14px; padding:18px 8px; text-align:center; cursor:pointer; }
+  .dept.sel { border-color:var(--caramel); box-shadow:0 0 0 2px var(--caramel) inset; background:var(--soft); }
+  .dept .ic { font-size:46px; } .dept .t { font-weight:700; font-size:14px; margin-top:6px; }
+  .dept .dic { width:66px; height:66px; object-fit:cover; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:4px 0 10px; }
+  .chip { white-space:nowrap; border:2px solid var(--line); background:var(--card); border-radius:999px; padding:9px 16px; font-size:14px; cursor:pointer; color:var(--txt); }
+  .chip.sel { background:var(--caramel); color:#fff; border-color:var(--caramel); }
+  .item { background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:13px; margin-bottom:10px; box-shadow:0 1px 4px rgba(160,95,28,.08); }
+  .item-img { width:100%; height:170px; object-fit:cover; border-radius:10px; margin-bottom:10px; display:block; }
+  .item .row1 { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .item .nm { font-weight:700; font-size:16px; }
+  .item .pr { color:var(--caramel-d); font-weight:800; font-size:18px; white-space:nowrap; }
+  .item .pr small { font-size:11px; font-weight:600; color:var(--mut); }
+  .tag { display:inline-block; font-size:11px; font-weight:800; background:var(--caramel); color:#fff; border-radius:999px; padding:3px 10px; margin-top:6px; }
+  .tag.pending { background:var(--gold); color:#5c3d00; }
+  .item .desc { font-size:12.5px; color:var(--mut); margin-top:6px; line-height:1.45; }
+  .qty { display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .qty button { width:44px; height:44px; border-radius:50%; border:2px solid var(--caramel); background:transparent; color:var(--caramel-d); font-size:22px; font-weight:700; cursor:pointer; }
+  .qty button:active { background:var(--caramel); color:#fff; }
+  .qty .n { font-size:18px; font-weight:700; min-width:28px; text-align:center; }
+  .rev-ln { align-items:center; }
+  .rev-info { flex:1; min-width:0; }
+  .rev-info .nm { font-weight:600; font-size:14px; }
+  .rev-step { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .rev-step button { width:32px; height:32px; border-radius:50%; border:2px solid var(--caramel); background:transparent; color:var(--caramel-d); font-size:18px; font-weight:700; cursor:pointer; line-height:1; padding:0; }
+  .rev-step button:active { background:var(--caramel); color:#fff; }
+  .rev-step .n { font-size:15px; font-weight:700; min-width:20px; text-align:center; }
+  .rev-step button.rev-del { width:auto; height:auto; border:none; background:none; border-radius:0; font-size:17px; padding:4px 2px; }
+  .rev-sub { font-weight:800; color:var(--caramel-d); white-space:nowrap; font-size:15px; flex-shrink:0; }
+  .inote { width:100%; margin-top:8px; border:1px solid var(--line); border-radius:8px; padding:9px; font-size:13px; background:var(--soft); color:var(--txt); }
+  label.f { display:block; font-size:13px; font-weight:600; margin:14px 0 6px; }
+  input.f, textarea.f { width:100%; border:2px solid var(--line); border-radius:10px; padding:13px; font-size:16px; background:var(--card); color:var(--txt); }
+  input.f:focus, textarea.f:focus { outline:none; border-color:var(--caramel); }
+  .pay-card { background:var(--card); border:2px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; cursor:pointer; display:flex; gap:12px; align-items:center; }
+  .pay-card.sel { border-color:var(--caramel); box-shadow:0 0 0 2px var(--caramel) inset; background:var(--soft); }
+  .pay-card .ic { font-size:30px; } .pay-card .t { font-weight:700; } .pay-card .s { font-size:12px; color:var(--mut); }
+  .sum { background:var(--soft); border:1.5px solid var(--line); border-radius:12px; padding:14px; }
+  .sum .ln { display:flex; justify-content:space-between; font-size:14px; padding:5px 0; border-bottom:1px dashed var(--line); }
+  .sum .ln .q { color:var(--mut); }
+  .sum .tot { display:flex; justify-content:space-between; font-size:20px; font-weight:800; padding-top:10px; color:var(--caramel-d); }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:#2e1a0c; border-top:2px solid var(--gold); padding:10px 14px calc(10px + env(safe-area-inset-bottom)); z-index:30; }
+  .bar .in { max-width:640px; margin:0 auto; display:flex; gap:10px; align-items:center; }
+  .bar .total { flex:1; } .bar .total .l { font-size:11px; color:#d9bfa4; } .bar .total .v { font-size:22px; font-weight:800; color:var(--gold); }
+  .btn { border:none; border-radius:12px; padding:15px 22px; font-size:16px; font-weight:700; cursor:pointer; }
+  .btn-p { background:linear-gradient(135deg,#c97b2d,#a05f1c); color:#fff; } .btn-p:active { filter:brightness(.92); }
+  .btn-g { background:#4a2f1a; color:#fff6ea; }
+  .btn:disabled { opacity:.45; }
+  .back { background:none; border:none; color:var(--caramel-d); font-size:15px; font-weight:600; padding:8px 0; cursor:pointer; margin-bottom:6px; }
+  .ok-box { background:var(--card); border-radius:16px; padding:26px 18px; text-align:center; border:2px solid var(--caramel); }
+  .ok-box .big { font-size:52px; } .ok-box h2 { font-size:22px; color:var(--caramel-d); }
+  .ok-num { font-size:34px; font-weight:800; color:var(--caramel-d); margin:8px 0; }
+  .note-box { background:var(--soft); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:13px; margin-top:14px; text-align:left; }
+  .err { background:#fdecea; color:#a31212; border-radius:10px; padding:12px; margin-bottom:12px; font-size:14px; display:none; }
+  .seed-tag { font-size:11px; color:var(--mut); background:var(--soft); border:1px dashed var(--line); border-radius:8px; padding:8px 10px; margin-top:14px; }
+  .item-main { cursor:pointer; }
+  .item-main:active { opacity:.85; }
+  .dtap { font-size:11px; color:var(--mut); margin-top:6px; }
+  /* ---- Product detail modal ---- */
+  .d-ov { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:90; display:none; align-items:flex-end; justify-content:center; }
+  .d-ov.on { display:flex; }
+  .d-card { background:var(--card); border:1.5px solid var(--line); border-bottom:none; border-radius:20px 20px 0 0; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; animation:dsheet .22s ease-out; }
+  @keyframes dsheet { from { transform:translateY(40px); opacity:.4; } to { transform:none; opacity:1; } }
+  .d-img { width:100%; height:230px; object-fit:cover; border-radius:20px 20px 0 0; display:block; }
+  .d-body { padding:16px 18px 22px; position:relative; }
+  .d-close { position:absolute; top:-46px; right:12px; width:36px; height:36px; border-radius:50%; border:none; background:rgba(0,0,0,.55); color:#fff; font-size:17px; cursor:pointer; }
+  .d-name { font-size:21px; font-weight:800; margin:4px 0; color:var(--txt); }
+  .d-price { font-size:19px; font-weight:800; color:var(--caramel-d); margin-bottom:6px; }
+  .d-sec { margin-top:12px; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--mut); font-weight:700; }
+  .d-desc { font-size:15px; line-height:1.6; margin-top:6px; }
+  .d-qtyrow { display:flex; align-items:center; gap:16px; margin:16px 0 10px; }
+  .d-qtyrow button { width:46px; height:46px; border-radius:50%; border:2px solid var(--caramel); background:var(--card); color:var(--caramel-d); font-size:22px; cursor:pointer; }
+  .d-qty { font-size:22px; font-weight:800; min-width:30px; text-align:center; }
+  .d-note { width:100%; box-sizing:border-box; margin:4px 0 12px; padding:10px; border-radius:10px; border:1.5px solid var(--line); background:var(--soft); color:var(--txt); font-size:14px; }
+  .d-add { width:100%; padding:15px; border:none; border-radius:14px; font-size:17px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,var(--caramel),var(--caramel-d)); color:#fff; }
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <img src="images/logo.webp" alt="Sweet Bakery Cafeteria" style="width:64px;height:64px;border-radius:50%;object-fit:cover;box-shadow:0 2px 10px rgba(0,0,0,.4);border:2px solid var(--gold)">
+    <div>
+      <h1>🥐 Sweet Bakery <span>Cafeteria</span></h1>
+      <p>Cuban bakery &amp; cafeteria — baked fresh daily in Homestead 🧡<br>📍 1467 N Krome Ave, Homestead, FL 33030 · 📞 305-242-0717<br>🕐 Open daily — order pickup or delivery</p>
+    </div>
+  </div>
+</header>
+<img class="hero" src="images/hero.jpg" alt="Fresh Cuban sandwiches, pastelitos, croquettes and cafecito">
+
+<main>
+  <!-- STEP 1: type -->
+  <section class="step on" id="s1">
+    <h2>How do you want your order?</h2>
+    <div class="opt2">
+      <div class="type-card" id="tc-delivery" onclick="setType('delivery')">
+        <div class="ic">🛵</div><div class="t">Delivery</div><div class="s">Homestead &amp; nearby areas</div>
+      </div>
+      <div class="type-card" id="tc-pickup" onclick="setType('pickup')">
+        <div class="ic">🏪</div><div class="t">Pickup</div><div class="s">1467 N Krome Ave, Homestead</div>
+      </div>
+    </div>
+    <div class="note-box" style="margin-top:14px">🥐 <b>Fresh from our kitchen.</b><br>Pressed sandwiches, pastelitos, cafecito and more — made the Cuban way. 💛</div>
+  </section>
+
+  <!-- STEP 2: catalog -->
+  <section class="step" id="s2">
+    <button class="back" onclick="go(1)">← Back</button>
+    <h2 id="dept-title">Choose a department</h2>
+    <div class="dept-grid" id="dept-grid"></div>
+    <div id="cat-view" style="display:none">
+      <button class="back" onclick="showDepts()">← Departments</button>
+      <h2 id="cat-title"></h2>
+      <div class="chips" id="cat-chips"></div>
+      <div id="items"></div>
+    </div>
+  </section>
+
+  <!-- STEP 3: info -->
+  <section class="step" id="s3">
+    <button class="back" onclick="go(2)">← Back</button>
+    <h2>Your info</h2>
+    <div class="err" id="e3"></div>
+    <label class="f">Full name *</label>
+    <input class="f" id="f-name" placeholder="Ex: Maria Garcia" autocomplete="name">
+    <label class="f">Phone *</label>
+    <input class="f" id="f-phone" placeholder="Ex: 305-555-1234" inputmode="tel" autocomplete="tel">
+    <div id="addr-wrap">
+      <label class="f">Delivery address *</label>
+      <textarea class="f" id="f-addr" rows="2" placeholder="Street, number, apartment, notes"></textarea>
+    </div>
+    <label class="f">Note for the store (optional)</label>
+    <textarea class="f" id="f-notes" rows="2" placeholder="Anything we should know?"></textarea>
+  </section>
+
+  <!-- STEP 4: payment -->
+  <section class="step" id="s4">
+    <button class="back" onclick="go(3)">← Back</button>
+    <h2>How do you want to pay?</h2>
+    <div class="pay-card" id="pc-cash" onclick="setPay('cash')">
+      <div class="ic">💵</div><div><div class="t">Cash</div><div class="s">Pay when you receive your order</div></div>
+    </div>
+    <div class="pay-card" id="pc-transfer" onclick="setPay('transfer')">
+      <div class="ic">📱</div><div><div class="t">Zelle</div><div class="s">Pay with Zelle at checkout</div></div>
+    </div>
+  </section>
+
+  <!-- STEP 5: review -->
+  <section class="step" id="s5">
+    <button class="back" onclick="go(4)">← Back</button>
+    <h2>Review your order</h2>
+    <div class="err" id="e5"></div>
+    <div class="sum" id="review"></div>
+  </section>
+
+  <!-- STEP 6: confirmation -->
+  <section class="step" id="s6">
+    <div class="ok-box">
+      <div class="big">✅</div>
+      <h2 id="ok-title">Order received!</h2>
+      <div>Your order number is</div>
+      <div class="ok-num" id="ok-num">#000</div>
+      <div class="sum" id="ok-sum" style="text-align:left"></div>
+      <div class="note-box">
+        <b>What happens next?</b><br>
+        • Sweet Bakery Cafeteria is getting your order ready right now.<br>
+        • We'll call your phone to confirm.<br>
+        • <span id="ok-next">Pay on receipt.</span><br>
+        • Save your order number: <b id="ok-num2">#000</b>
+      </div>
+      <div id="ok-pend" style="display:none; font-weight:700; color:#7a5b00; margin-top:10px">⏳ We're waiting for your payment — the store confirms it once received. 💸</div>
+      <button class="btn btn-p" style="width:100%; margin-top:16px" onclick="location.reload()">Place another order</button>
+    </div>
+  </section>
+
+  <div class="seed-tag">Prices in US$. Made fresh daily at Sweet Bakery Cafeteria, Homestead 🥐</div>
+</main>
+
+<div class="bar" id="bar" style="display:none">
+  <div class="in">
+    <div class="total"><div class="l" id="bar-count">0 items</div><div class="v" id="bar-total">$0.00</div></div>
+    <button class="btn btn-g" id="bar-back" onclick="barBack()">Back</button>
+    <button class="btn btn-p" id="bar-next" onclick="barNext()">Continue →</button>
+  </div>
+</div>
+
+<script>
+let catalog = null;
+let step = 1;
+let orderType = null, payMethod = null;
+let zelleHandle = "";  // loaded from /api/settings; shown only AFTER checkout
+let cart = {};           // itemId -> {qty, note}
+let curDept = null, curCat = null;
+
+const $ = id => document.getElementById(id);
+const fmt = n => "$" + Number(n).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+async function load() {
+  const r = await fetch("/api/catalog");
+  catalog = await r.json();
+  renderDepts();
+  // Store Zelle handle (shown only AFTER the order is confirmed)
+  try {
+    const sr = await fetch("/api/settings");
+    if (sr.ok) { const s = await sr.json(); zelleHandle = s.zelle_handle || ""; }
+  } catch (e) { /* store shares it when they call to confirm */ }
+}
+function go(n) {
+  step = n;
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("on"));
+  $("s" + n).classList.add("on");
+  window.scrollTo(0, 0);
+  updateBar();
+  if (n === 5) renderReview();
+}
+function setType(t) {
+  orderType = t;
+  $("tc-delivery").classList.toggle("sel", t === "delivery");
+  $("tc-pickup").classList.toggle("sel", t === "pickup");
+  $("addr-wrap").style.display = t === "delivery" ? "block" : "none";
+  setTimeout(() => go(2), 220);
+}
+function setPay(p) {
+  payMethod = p;
+  $("pc-cash").classList.toggle("sel", p === "cash");
+  $("pc-transfer").classList.toggle("sel", p === "transfer");
+  setTimeout(() => go(5), 220);
+}
+
+// ---- catalog ----
+function renderDepts() {
+  $("cat-view").style.display = "none";
+  $("dept-grid").style.display = "grid";
+  $("dept-title").style.display = "block";
+  $("dept-grid").innerHTML = catalog.departments.map(d =>
+    `<div class="dept" onclick="openDept('${d.id}')"><div class="ic">${d.iconImg ? `<img class="dic" src="images/${d.iconImg}" alt="${d.name}">` : (d.icon || "🔥")}</div><div class="t">${d.name}</div></div>`
+  ).join("");
+}
+function showDepts() { curDept = null; renderDepts(); }
+function openDept(id) {
+  curDept = catalog.departments.find(d => d.id === id);
+  curCat = curDept.categories[0];
+  $("dept-grid").style.display = "none";
+  $("dept-title").style.display = "none";
+  $("cat-view").style.display = "block";
+  $("cat-title").textContent = curDept.name;
+  $("cat-chips").innerHTML = curDept.categories.map(c =>
+    `<div class="chip ${c.id === curCat.id ? "sel" : ""}" onclick="openCat('${c.id}')">${c.name}</div>`
+  ).join("");
+  renderItems();
+  window.scrollTo(0, 0);
+}
+function openCat(id) {
+  curCat = curDept.categories.find(c => c.id === id);
+  document.querySelectorAll("#cat-chips .chip").forEach((el, i) =>
+    el.classList.toggle("sel", curDept.categories[i].id === id));
+  renderItems();
+}
+function findItem(id) {
+  for (const d of catalog.departments) for (const c of d.categories) for (const it of c.items)
+    if (it.id === id) return it;
+  return null;
+}
+function esc(s) { return String(s == null ? "" : s).replace(/</g, "&lt;"); }
+function renderItems() {
+  $("items").innerHTML = curCat.items.filter(i => i.active).map(it => {
+    const c = cart[it.id] || { qty: 0, note: "" };
+    return `<div class="item">
+      <div class="item-main" onclick="openDetail('${it.id}')">
+        ${it.image ? `<img class="item-img" src="images/${esc(it.image)}" alt="${esc(it.name)}" loading="lazy">` : ""}
+        <div class="row1"><div class="nm">${esc(it.name)}</div><div class="pr">${fmt(it.price)} <small>/${esc(it.unit)}</small></div></div>
+        ${it.tag ? `<div><span class="tag">${esc(it.tag)}</span></div>` : ""}
+        ${it.pending ? `<div><span class="tag pending">⚠️ ${esc(it.note || "Price to confirm")}</span></div>` : ""}
+        ${it.desc ? `<div class="desc">${esc(it.desc)}</div>` : ""}
+        <div class="dtap">Tap to see details 👆</div>
+      </div>
+      <div class="qty">
+        <button onclick="chQty('${it.id}',-1)">−</button>
+        <div class="n">${c.qty}</div>
+        <button onclick="chQty('${it.id}',1)">+</button>
+      </div>
+      ${c.qty > 0 ? `<input class="inote" placeholder="Note (optional): ex. no pickles" value="${(c.note || "").replace(/"/g, "&quot;")}" oninput="setNote('${it.id}', this.value)">` : ""}
+    </div>`;
+  }).join("");
+}
+function chQty(id, d) {
+  const c = cart[id] || (cart[id] = { qty: 0, note: "" });
+  c.qty = Math.max(0, c.qty + d);
+  if (c.qty === 0) delete cart[id];
+  renderItems(); updateBar();
+}
+function setNote(id, v) { if (cart[id]) cart[id].note = v; }
+function revQty(id, d) {
+  const c = cart[id]; if (!c) return;
+  c.qty += d;
+  if (c.qty <= 0) delete cart[id];
+  renderReview(); updateBar();
+}
+function revDel(id) {
+  delete cart[id];
+  renderReview(); updateBar();
+}
+
+function cartCount() { return Object.values(cart).reduce((s, c) => s + c.qty, 0); }
+function cartTotal() {
+  return Object.entries(cart).reduce((s, [id, c]) => {
+    const it = findItem(id); return s + (it ? it.price * c.qty : 0);
+  }, 0);
+}
+function cartLines() {
+  return Object.entries(cart).map(([id, c]) => {
+    const it = findItem(id);
+    return { itemId: id, name: it.name, price: it.price, unit: it.unit, qty: c.qty, note: c.note, subtotal: it.price * c.qty };
+  });
+}
+
+// ---- bottom bar ----
+function updateBar() {
+  const show = (step === 2 || step === 3 || step === 4);
+  $("bar").style.display = show ? "block" : "none";
+  if (!show) return;
+  $("bar-count").textContent = cartCount() + (cartCount() === 1 ? " item" : " items");
+  $("bar-total").textContent = fmt(cartTotal());
+  $("bar-next").disabled = cartCount() === 0;
+  $("bar-back").style.display = step === 2 ? "none" : "inline-block";
+  $("bar-next").textContent = step === 2 ? "Continue →" : step === 3 ? "Go to payment →" : "Review →";
+}
+function barBack() { if (step > 2) go(step - 1); }
+function barNext() {
+  if (cartCount() === 0) return;
+  if (step === 2) go(3);
+  else if (step === 3) {
+    const name = $("f-name").value.trim(), phone = $("f-phone").value.trim(), addr = $("f-addr").value.trim();
+    const e = $("e3");
+    if (!name || !phone) { e.style.display = "block"; e.textContent = "Enter your name and phone."; return; }
+    if (orderType === "delivery" && !addr) { e.style.display = "block"; e.textContent = "Enter your delivery address."; return; }
+    e.style.display = "none";
+    go(4);
+  }
+  else if (step === 4) {
+    if (!payMethod) { alert("Choose how you want to pay."); return; }
+    go(5);
+  }
+}
+
+// ---- review & submit ----
+function renderReview() {
+  const lines = cartLines();
+  const isZelle = payMethod === "transfer";
+  if (lines.length === 0) {
+    $("review").innerHTML =
+      `<div class="ln"><span><b>${orderType === "delivery" ? "🛵 Delivery" : "🏪 Pickup"}</b></span><span>${payMethod === "cash" ? "💵 Cash" : "📱 Zelle"}</span></div>` +
+      `<div style="text-align:center;padding:26px 12px">` +
+      `<div style="font-size:44px">🥐</div>` +
+      `<div style="font-weight:700;font-size:16px;margin:8px 0 4px">Your cart is empty</div>` +
+      `<div style="font-size:13px;color:var(--mut)">You removed everything — head back to the menu to add something fresh.</div>` +
+      `<button class="btn btn-p" style="margin-top:14px" onclick="go(2)">← Back to menu</button></div>`;
+    return;
+  }
+  const zBox = isZelle ? `
+    <div class="zelle-pay">
+      <div class="zp-t">💸 Pay your order with Zelle</div>
+      <div>Send your <b>order total</b> to:</div>
+      <div class="zp-handle">${zelleHandle ? String(zelleHandle).replace(/</g, "&lt;") : "—"}</div>
+      ${zelleHandle ? "" : `<div class="zp-note">The store will share their Zelle when they call to confirm.</div>`}
+      <div class="zp-note">After paying, tap the button to send your order.</div>
+    </div>` : "";
+  $("review").innerHTML =
+    `<div class="ln"><span><b>${orderType === "delivery" ? "🛵 Delivery" : "🏪 Pickup"}</b></span><span>${payMethod === "cash" ? "💵 Cash" : "📱 Zelle"}</span></div>` +
+    zBox +
+    lines.map(l => `<div class="ln rev-ln"><span class="rev-info"><span class="nm">${esc(l.name)}</span>${l.note ? `<br><small style="color:#6b6b6b">📝 ${esc(l.note)}</small>` : ""}</span><span class="rev-step"><button onclick="revQty('${l.itemId}',-1)" aria-label="Remove one">−</button><span class="n">${l.qty}</span><button onclick="revQty('${l.itemId}',1)" aria-label="Add one">+</button><button class="rev-del" onclick="revDel('${l.itemId}')" title="Remove from order">🗑️</button></span><span class="rev-sub">${fmt(l.subtotal)}</span></div>`).join("") +
+    `<div class="tot"><span>Total</span><span>${fmt(cartTotal())}</span></div>
+     <button class="btn btn-p" style="width:100%; margin-top:14px" onclick="submitOrder()">${isZelle ? "✅ I've sent the payment" : "✅ Confirm order"}</button>
+     ${isZelle ? `<a class="zp-change" onclick="go(4)">← change payment method</a>` : ""}
+     <div style="font-size:12px; color:#6b6b6b; margin-top:10px">${isZelle ? "When you tap the button, your order reaches the store as payment-pending — they confirm it once your Zelle arrives." : "When you confirm, Sweet Bakery Cafeteria gets your order instantly and calls you to confirm."}</div>`;
+}
+async function submitOrder() {
+  const btn = document.querySelector("#review .btn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  const body = {
+    type: orderType,
+    items: Object.entries(cart).map(([itemId, c]) => ({ itemId, qty: c.qty, note: c.note })),
+    customer: { name: $("f-name").value.trim(), phone: $("f-phone").value.trim(), address: $("f-addr").value.trim() },
+    payment: payMethod,
+    notes: $("f-notes").value.trim()
+  };
+  try {
+    const r = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const order = await r.json();
+    if (!r.ok) throw new Error(order.error || "Error");
+    $("ok-num").textContent = order.number;
+    $("ok-num2").textContent = order.number;
+    if (payMethod === "transfer") {
+      $("ok-next").textContent = zelleHandle
+        ? `Send your order total by Zelle to: ${zelleHandle}`
+        : "The store will share their Zelle when they call to confirm.";
+      $("ok-title").textContent = "⏳ Order received!";
+      $("ok-pend").style.display = "block";
+    } else {
+      $("ok-title").textContent = "Order received!";
+      $("ok-pend").style.display = "none";
+      $("ok-next").textContent = orderType === "delivery"
+        ? "Pay in cash on delivery."
+        : "Pay in cash at pickup.";
+    }
+    $("ok-sum").innerHTML = order.items.map(l =>
+      `<div class="ln"><span><span class="q">${l.qty} ×</span> ${esc(l.name)}</span><span>${fmt(l.subtotal)}</span></div>`).join("") +
+      `<div class="tot"><span>Total</span><span>${fmt(order.items.reduce((s, l) => s + l.subtotal, 0))}</span></div>`;
+    cart = {};
+    go(6);
+  } catch (err) {
+    const e = $("e5"); e.style.display = "block"; e.textContent = err.message || "Could not send the order. Try again.";
+    btn.disabled = false; btn.textContent = "✅ Confirm order";
+  }
+}
+load();
+</script>
+<!-- Product detail modal -->
+<div class="d-ov" id="d-ov" onclick="if(event.target===this)closeDetail()">
+  <div class="d-card">
+    <div class="d-body">
+      <button class="d-close" onclick="closeDetail()">✕</button>
+      <img class="d-img" id="d-img" alt="">
+      <div id="d-tag"></div>
+      <div class="d-name" id="d-name"></div>
+      <div class="d-price" id="d-price"></div>
+      <div id="d-pend"></div>
+      <div class="d-sec">What's inside</div>
+      <div class="d-desc" id="d-desc"></div>
+      <div class="d-qtyrow">
+        <button onclick="dQty(-1)">−</button>
+        <div class="d-qty" id="d-qty">0</div>
+        <button onclick="dQty(1)">+</button>
+      </div>
+      <input class="d-note" id="d-note" placeholder="Note (optional): ex. no pickles" oninput="dNote(this.value)">
+      <button class="d-add" onclick="closeDetail()">Add to order ✓</button>
+    </div>
+  </div>
+</div>
+<script>
+let detailId = null;
+function openDetail(id) {
+  const it = findItem(id); if (!it) return;
+  detailId = id;
+  const img = $("d-img");
+  if (it.image) { img.src = "images/" + it.image; img.style.display = "block"; }
+  else img.style.display = "none";
+  $("d-tag").innerHTML = it.tag ? `<div><span class="tag">${esc(it.tag)}</span></div>` : "";
+  $("d-name").textContent = it.name;
+  $("d-price").innerHTML = fmt(it.price) + " <small>/" + esc(it.unit) + "</small>";
+  $("d-pend").innerHTML = it.pending ? `<div><span class="tag pending">⚠️ ${esc(it.note || "Price to confirm")}</span></div>` : "";
+  $("d-desc").textContent = it.desc || "Ask the store about this item.";
+  refreshDetail();
+  $("d-ov").classList.add("on");
+  document.body.style.overflow = "hidden";
+}
+function refreshDetail() {
+  const c = cart[detailId] || { qty: 0, note: "" };
+  $("d-qty").textContent = c.qty;
+  if ($("d-note").value !== (c.note || "")) $("d-note").value = c.note || "";
+}
+function dQty(d) { if (!detailId) return; chQty(detailId, d); refreshDetail(); }
+function dNote(v) { if (!detailId) return; const c = cart[detailId] || (cart[detailId] = { qty: 0, note: "" }); c.note = v; updateBar(); }
+function closeDetail() { detailId = null; $("d-ov").classList.remove("on"); document.body.style.overflow = ""; renderItems(); }
+</script>
+</body>
+</html>

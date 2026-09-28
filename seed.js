@@ -1,0 +1,180 @@
+// ============================================================
+// SEED CATALOG — Sweet Bakery Cafeteria (Homestead, FL)
+// Cuban bakery & cafeteria. 1467 N Krome Ave, Homestead, FL 33030
+// Phone: 305-242-0717. Site: sweetbakerycafeteria.shop
+// Currency: USD. Payments: Cash / Zelle (pending payment).
+// Pickup + Delivery.
+//
+// ⚠️  DRAFT PRICES — NOT OWNER-CONFIRMED.
+// The menu boards on their site were unreadable, so every price
+// below is a reasonable Homestead Cuban-cafeteria estimate.
+// Portal will confirm/correct every price with the owner on his
+// camera visit. All prices are editable in /store (Catalog tab).
+// Photos: AI-generated placeholders — Portal will swap in LIVE
+// photos later (his rule: real beats AI).
+//
+// CATALOG_VERSION: bump to re-seed (merge is additive-only —
+// owner /store edits are never wiped).
+// ============================================================
+
+const CATALOG_VERSION = 1;
+
+const SEED_CATALOG = {
+  departments: [
+    {
+      id: "sandwiches",
+      name: "Sandwiches",
+      icon: "🥪",
+      iconImg: "dept-sandwiches.jpg",
+      categories: [
+        {
+          id: "pressed-sandwiches",
+          name: "Pressed on Cuban bread",
+          items: [
+            { id: "cuban-sandwich", name: "Cuban Sandwich", price: 9.50, unit: "sandwich", active: true, image: "dept-sandwiches.jpg",
+              tag: "The icon",
+              desc: "Slow-roasted pork, ham, Swiss cheese, pickles and mustard, pressed hot on fresh Cuban bread." },
+            { id: "media-noche", name: "Media Noche", price: 9.75, unit: "sandwich", active: true, image: "dept-sandwiches.jpg",
+              desc: "The Cuban sandwich's sweet cousin — same fillings on soft, sweet egg bread, pressed golden." },
+            { id: "pan-bistec", name: "Pan con Bistec", price: 10.50, unit: "sandwich", active: true, image: "dept-sandwiches.jpg",
+              desc: "Thin-sliced seasoned steak with grilled onions, pressed on Cuban bread." },
+            { id: "pan-lechon", name: "Pan con Lechón", price: 10.50, unit: "sandwich", active: true, image: "dept-sandwiches.jpg",
+              desc: "Juicy roast pork with mojo onions, pressed on Cuban bread." },
+            { id: "pan-croqueta", name: "Pan con Croqueta (Preparada)", price: 8.50, unit: "sandwich", active: true, image: "dept-sandwiches.jpg",
+              desc: "Crispy ham croquettes tucked into Cuban bread — the working-class classic." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "croquetas",
+      name: "Croquetas & Frituras",
+      icon: "🧆",
+      iconImg: "dept-croquetas.jpg",
+      categories: [
+        {
+          id: "croquetas-ham",
+          name: "Ham croquettes",
+          items: [
+            { id: "croq-6", name: "Croquetas de Jamón (6 pc)", price: 4.50, unit: "order", active: true, image: "dept-croquetas.jpg",
+              tag: "Fried to order",
+              desc: "Golden, creamy ham croquettes — fried to order. Acclaimed as some of the best in Florida." },
+            { id: "croq-12", name: "Croquetas de Jamón (12 pc)", price: 8.50, unit: "order", active: true, image: "dept-croquetas.jpg",
+              desc: "A dozen of our famous ham croquettes. For the table — or just for you." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "pastelitos",
+      name: "Pastelitos & Bakery",
+      icon: "🥐",
+      iconImg: "dept-pastelitos.jpg",
+      categories: [
+        {
+          id: "pastelitos-dulces",
+          name: "Pastelitos",
+          items: [
+            { id: "past-guayaba", name: "Pastelito de Guayaba", price: 2.25, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Flaky puff pastry filled with sweet guava paste." },
+            { id: "past-queso", name: "Pastelito de Queso", price: 2.25, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Flaky pastry with a creamy cheese filling." },
+            { id: "past-carne", name: "Pastelito de Carne", price: 2.50, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Seasoned ground beef wrapped in flaky pastry." },
+            { id: "past-guayaba-queso", name: "Pastelito de Guayaba y Queso", price: 2.50, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              tag: "Customer favorite",
+              desc: "The perfect marriage: sweet guava and creamy cheese in flaky pastry." },
+            { id: "pizza-pastel", name: "Pizza Pastel", price: 3.25, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Pizza flavors in a flaky pastelito — cheese, sauce and pepperoni." }
+          ]
+        },
+        {
+          id: "empanadas",
+          name: "Empanadas",
+          items: [
+            { id: "emp-jamon-queso", name: "Empanada de Jamón y Queso", price: 3.00, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Ham and cheese empanada, baked golden." },
+            { id: "emp-pollo", name: "Empanada de Pollo", price: 3.00, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Shredded chicken empanada, baked golden." },
+            { id: "emp-carne", name: "Empanada de Carne", price: 3.00, unit: "each", active: true, image: "dept-pastelitos.jpg",
+              desc: "Seasoned beef empanada, baked golden." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "cafe",
+      name: "Cuban Coffee",
+      icon: "☕",
+      iconImg: "dept-cafe.jpg",
+      categories: [
+        {
+          id: "cafecitos",
+          name: "Cafecitos",
+          items: [
+            { id: "cafecito", name: "Café Cubano", price: 1.50, unit: "shot", active: true, image: "dept-cafe.jpg",
+              desc: "Strong, sweet Cuban espresso. The 3:05 ritual." },
+            { id: "cortadito", name: "Cortadito", price: 2.25, unit: "cup", active: true, image: "dept-cafe.jpg",
+              desc: "Cuban espresso cut with steamed milk." },
+            { id: "colada", name: "Colada", price: 4.00, unit: "4oz", active: true, image: "dept-cafe.jpg",
+              tag: "Para compartir",
+              desc: "A full round of cafecito for sharing — the Cuban way." },
+            { id: "cafe-leche-s", name: "Café con Leche (Small)", price: 2.75, unit: "cup", active: true, image: "dept-cafe.jpg",
+              desc: "Cuban coffee with hot milk. Made for dunking tostadas." },
+            { id: "cafe-leche-l", name: "Café con Leche (Large)", price: 3.75, unit: "cup", active: true, image: "dept-cafe.jpg",
+              desc: "The big morning cup of café con leche." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "desayunos",
+      name: "Breakfast",
+      icon: "🍳",
+      iconImg: "dept-desayunos.jpg",
+      categories: [
+        {
+          id: "desayuno-platos",
+          name: "Desayunos",
+          items: [
+            { id: "huevos-fritos", name: "Huevos Fritos", price: 7.50, unit: "plate", active: true, image: "dept-desayunos.jpg",
+              desc: "Fried eggs served with Cuban toast." },
+            { id: "huevos-revueltos", name: "Huevos Revueltos con Jamón", price: 8.50, unit: "plate", active: true, image: "dept-desayunos.jpg",
+              desc: "Scrambled eggs with ham, served with Cuban toast." },
+            { id: "tortilla-espanola", name: "Tortilla Española", price: 8.00, unit: "plate", active: true, image: "dept-desayunos.jpg",
+              desc: "Classic Spanish potato omelet, served with Cuban toast." },
+            { id: "tostadas", name: "Tostadas Cubanas", price: 4.50, unit: "order", active: true, image: "dept-desayunos.jpg",
+              desc: "Buttered, pressed Cuban toast — made for dunking in café con leche." },
+            { id: "tortilla-gusto", name: "Tortilla a su Gusto", price: 9.00, unit: "plate", active: true, image: "dept-desayunos.jpg",
+              desc: "Omelet your way — tell us your fillings in the order note." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "batidos",
+      name: "Shakes & Juices",
+      icon: "🥤",
+      iconImg: "dept-batidos.jpg",
+      categories: [
+        {
+          id: "batidos-fruta",
+          name: "Batidos de frutas",
+          items: [
+            { id: "batido-mango", name: "Batido de Mango", price: 5.50, unit: "glass", active: true, image: "dept-batidos.jpg",
+              desc: "Fresh mango milkshake, blended thick." },
+            { id: "batido-mamey", name: "Batido de Mamey", price: 5.50, unit: "glass", active: true, image: "dept-batidos.jpg",
+              desc: "Creamy mamey milkshake — a Cuban classic." },
+            { id: "batido-guayaba", name: "Batido de Guayaba", price: 5.50, unit: "glass", active: true, image: "dept-batidos.jpg",
+              desc: "Sweet guava milkshake." },
+            { id: "guarapo", name: "Guarapo", price: 5.00, unit: "glass", active: true, image: "dept-batidos.jpg",
+              tag: "Fresh pressed",
+              desc: "Fresh-pressed sugarcane juice. Pure Cuba in a glass." }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+module.exports = { SEED_CATALOG, CATALOG_VERSION };

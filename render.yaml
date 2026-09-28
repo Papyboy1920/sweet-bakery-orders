@@ -1,0 +1,18 @@
+# Render Blueprint — Sweet Bakery Cafeteria
+# 1-click deploy from the Render dashboard (New > Blueprint).
+# Creates the web service (free plan). DB: Postgres via DATABASE_URL
+# (set manually per service — free tier) or local SQLite fallback.
+services:
+  - type: web
+    name: sweet-bakery-orders
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/catalog
+    envVars:
+      - key: STORE_KEY
+        generateValue: true
+        # Render generates a random key. Copy it from the dashboard
+        # (Environment) and use it to enter /store. ADMIN_KEY (Portal's
+        # private key) is added manually in Environment — never in the repo.
