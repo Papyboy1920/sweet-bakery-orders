@@ -1,5 +1,5 @@
 // ============================================================
-// Sweet Bakery Cafeteria — servidor (Kendall, Miami, FL)
+// Sweet Bakery Cafeteria — server (Homestead, FL)
 // Node.js + Express. DB: Postgres (DATABASE_URL) o SQLite local.
 // Ejecutar: npm install && node server.js
 // Env vars:
