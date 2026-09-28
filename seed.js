@@ -17,7 +17,7 @@
 // owner /store edits are never wiped).
 // ============================================================
 
-const CATALOG_VERSION = 2;
+const CATALOG_VERSION = 3;
 
 const SEED_CATALOG = {
   departments: [
@@ -69,7 +69,7 @@ const SEED_CATALOG = {
       id: "pastelitos",
       name: "Pastelitos & Bakery",
       icon: "🥐",
-      iconImg: "dept-pastelitos.jpg",
+      iconImg: "portal-pastelitos-tray.jpg",
       categories: [
         {
           id: "pastelitos-dulces",
@@ -98,6 +98,17 @@ const SEED_CATALOG = {
               desc: "Shredded chicken empanada, baked golden." },
             { id: "emp-carne", name: "Empanada de Carne", price: 3.00, unit: "each", active: true, image: "emp-carne.jpg",
               desc: "Seasoned beef empanada, baked golden." }
+          ]
+        },
+        {
+          id: "cangrejitos",
+          name: "Cangrejitos",
+          items: [
+            { id: "cangrejito-jamon", name: "Cangrejito de Jamón", price: 3.25, unit: "each", active: true, image: "cangrejito-jamon.jpg",
+              tag: "Customer favorite",
+              desc: "Flaky golden crescent stuffed with ham and cheese — the Cuban bakery classic." },
+            { id: "cangrejito-chorizo", name: "Cangrejito de Chorizo", price: 3.25, unit: "each", active: true, image: "cangrejito-chorizo.jpg",
+              desc: "Flaky golden crescent stuffed with savory chorizo." }
           ]
         }
       ]

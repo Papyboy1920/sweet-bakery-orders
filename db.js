@@ -150,6 +150,24 @@ function applyImageFixes(catalog) {
   return fixed;
 }
 
+// Migración de imágenes de departamento (owner-safe): solo si la imagen actual
+// es EXACTAMENTE el placeholder viejo. Idempotente.
+// v3 (2026-09-28): tile de Pastelitos & Bakery usa la foto propia de Portal.
+const DEPT_IMAGE_FIXES = {
+  "pastelitos": { old: "dept-pastelitos.jpg", new: "portal-pastelitos-tray.jpg" }
+};
+function applyDeptImageFixes(catalog) {
+  let fixed = 0;
+  for (const d of (catalog && catalog.departments) || []) {
+    const fx = d && DEPT_IMAGE_FIXES[d.id];
+    if (fx && d.iconImg === fx.old) {
+      d.iconImg = fx.new;
+      fixed++;
+    }
+  }
+  return fixed;
+}
+
 async function init() {
   if (process.env.DATABASE_URL) {
     const { Pool } = require("pg");
@@ -183,9 +201,10 @@ async function init() {
       try { live = JSON.parse(await kvGet("catalog")); } catch { live = null; }
       const m = mergeCatalog(live, SEED_CATALOG);
       const fx = applyImageFixes(m.catalog);
+      const dfx = applyDeptImageFixes(m.catalog);
       await kvSet("catalog", JSON.stringify(m.catalog));
       await kvSet("catalog_version", String(CATALOG_VERSION));
-      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas. Lo del dueño intacto.`);
+      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos. Lo del dueño intacto.`);
     }
   }
   if (!(await kvGet("order_seq"))) await kvSet("order_seq", "0");
