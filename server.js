@@ -192,6 +192,38 @@ app.get("/api/orders", requireStore, async (req, res) => {
   res.json(await db.listOrders());
 });
 
+// Público: seguimiento de pedido (/sigue).
+// Solo devuelve el pedido si NÚMERO + TELÉFONO coinciden exactamente.
+// Nunca lista pedidos de otros clientes. Campos sensibles (teléfono,
+// dirección, notas internas) jamás se exponen aquí.
+app.get("/api/track", async (req, res) => {
+  let number = String(req.query.number || "").trim();
+  const phone = String(req.query.phone || "").trim();
+  if (!number || !phone) {
+    return res.status(400).json({ error: "Número de pedido y teléfono son obligatorios." });
+  }
+  if (!number.startsWith("#")) number = "#" + number;
+  const digits = s => String(s || "").replace(/\D/g, "");
+  if (!digits(phone)) {
+    return res.status(400).json({ error: "Teléfono inválido." });
+  }
+  const order = await db.getOrderByNumber(number);
+  if (!order || digits(order.customer.phone) !== digits(phone)) {
+    return res.status(404).json({ error: "No encontramos ese pedido. Revisa el número y el teléfono." });
+  }
+  const total = Math.round(order.items.reduce((s, l) => s + (l.subtotal || 0), 0) * 100) / 100;
+  res.json({
+    number: order.number,
+    status: order.status,
+    type: order.type,
+    payment: order.payment,
+    total,
+    items: order.items.map(l => ({ name: l.name, qty: l.qty })),
+    name: order.customer.name,
+    created_at: order.created_at
+  });
+});
+
 app.patch("/api/orders/:id", requireStore, async (req, res) => {
   const { status } = req.body || {};
   if (!VALID_STATUS.includes(status)) {

@@ -110,6 +110,32 @@
   .d-qty { font-size:22px; font-weight:800; min-width:30px; text-align:center; }
   .d-note { width:100%; box-sizing:border-box; margin:4px 0 12px; padding:10px; border-radius:10px; border:1.5px solid var(--line); background:var(--soft); color:var(--txt); font-size:14px; }
   .d-add { width:100%; padding:15px; border:none; border-radius:14px; font-size:17px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,var(--caramel),var(--caramel-d)); color:#fff; }
+  /* ---- Rastreador de pedido (/sigue) ---- */
+  .track-link { display:block; text-align:center; margin-top:14px; color:var(--caramel-d); font-size:14px; font-weight:700; background:var(--card); border:1.5px dashed var(--caramel); border-radius:12px; cursor:pointer; width:100%; padding:12px; }
+  .track-card { background:var(--card); border:2px solid var(--line); border-radius:16px; padding:18px 14px; margin-top:16px; }
+  .track-head { text-align:center; margin-bottom:14px; }
+  .track-head .tn { font-size:26px; font-weight:800; color:var(--caramel-d); }
+  .track-head .ts { font-size:12px; color:var(--mut); margin-top:4px; }
+  .stages { display:flex; align-items:flex-start; margin:6px 0 4px; }
+  .stage { flex:1; text-align:center; position:relative; }
+  .stage .dot { width:44px; height:44px; border-radius:50%; border:2px solid var(--line); background:var(--soft); display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; position:relative; z-index:2; }
+  .stage .lb { font-size:10.5px; margin-top:6px; color:var(--mut); font-weight:600; line-height:1.3; }
+  .stage::before { content:""; position:absolute; top:22px; left:-50%; width:100%; height:3px; background:var(--line); z-index:1; }
+  .stage:first-child::before { display:none; }
+  .stage.done .dot { border-color:var(--caramel); background:linear-gradient(135deg,#dca83e,#96600f); box-shadow:0 0 12px rgba(220,168,62,.6); }
+  .stage.done .lb { color:var(--txt); }
+  .stage.done::before { background:var(--caramel); }
+  .stage.now .dot { border-color:var(--gold); animation:pulse 1.6s infinite; }
+  .stage.now .lb { color:var(--caramel-d); font-weight:800; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(220,168,62,.55);} 70%{box-shadow:0 0 0 12px rgba(220,168,62,0);} 100%{box-shadow:0 0 0 0 rgba(220,168,62,0);} }
+  .track-live { text-align:center; font-size:12px; color:var(--mut); margin-top:10px; }
+  .track-live .blip { display:inline-block; width:8px; height:8px; border-radius:50%; background:#3ddc84; margin-right:6px; animation:pulse 1.6s infinite; }
+  .celebrate { background:linear-gradient(135deg,#fff3d9,#f7eeda); border:2px solid var(--gold); border-radius:16px; padding:26px 16px; margin-top:16px; text-align:center; box-shadow:0 0 30px rgba(220,168,62,.45); animation:cel 1s ease-in-out infinite alternate; }
+  @keyframes cel { from{transform:scale(1);} to{transform:scale(1.02);} }
+  .celebrate .cj { font-size:56px; }
+  .celebrate h3 { font-size:24px; margin:10px 0 6px; color:var(--caramel-d); }
+  .celebrate p { font-size:14px; color:var(--txt); margin:0; }
+  .track-cancel { background:#f7e3e3; border:2px solid #c0392b; border-radius:16px; padding:20px; margin-top:16px; text-align:center; }
 </style>
 </head>
 <body>
@@ -137,6 +163,7 @@
       </div>
     </div>
     <div class="note-box" style="margin-top:14px">🥐 <b>Fresco de nuestra cocina.</b><br>Sándwiches prensados, pastelitos, cafecito y más — a lo cubano. 💛</div>
+    <button class="track-link" onclick="openLookup()">🔍 ¿Ya pediste? Sigue tu pedido aquí</button>
   </section>
 
   <!-- STEP 2: catalog -->
@@ -198,11 +225,28 @@
         • Sweet Bakery Cafeteria está preparando tu pedido ahora mismo.<br>
         • Te llamaremos a tu teléfono para confirmar.<br>
         • <span id="ok-next">Paga en efectivo al recoger.</span><br>
-        • Guarda tu número de pedido: <b id="ok-num2">#000</b>
+        • Guarda tu número de pedido: <b id="ok-num2">#000</b><br>
+        • Sigue tu pedido en vivo aquí abajo 👇
       </div>
+      <div id="track-live"></div>
       <div id="ok-pend" style="display:none; font-weight:700; color:#7a5b00; margin-top:10px">⏳ Estamos esperando tu pago — la tienda lo confirma al recibirlo. 💸</div>
       <button class="btn btn-p" style="width:100%; margin-top:16px" onclick="location.reload()">Hacer otro pedido</button>
     </div>
+  </section>
+
+  <!-- STEP 7: seguir mi pedido (/sigue) -->
+  <section class="step" id="s7">
+    <button class="back" onclick="stopTracking(); go(1)">← Inicio</button>
+    <h2>🔍 Seguir mi pedido</h2>
+    <div id="track-lookup">
+      <div class="err" id="e7"></div>
+      <label class="f">Número de pedido</label>
+      <input class="f" id="t-number" placeholder="Ej: #001" inputmode="text">
+      <label class="f">Teléfono del pedido</label>
+      <input class="f" id="t-phone" placeholder="Ej: 305-555-1234" inputmode="tel">
+      <button class="btn btn-p" style="width:100%; margin-top:14px" onclick="lookupOrder()">Buscar mi pedido</button>
+    </div>
+    <div id="track-view"></div>
   </section>
 
   <div class="seed-tag">Precios en US$. Hecho fresco a diario en Sweet Bakery Cafeteria, Homestead 🥐</div>
@@ -239,6 +283,7 @@ async function load() {
 }
 function go(n) {
   step = n;
+  if (n !== 6 && n !== 7) stopTracking();
   document.querySelectorAll(".step").forEach(s => s.classList.remove("on"));
   $("s" + n).classList.add("on");
   window.scrollTo(0, 0);
@@ -433,13 +478,95 @@ async function submitOrder() {
       `<div class="ln"><span><span class="q">${l.qty} ×</span> ${esc(l.name)}</span><span>${fmt(l.subtotal)}</span></div>`).join("") +
       `<div class="tot"><span>Total</span><span>${fmt(order.items.reduce((s, l) => s + l.subtotal, 0))}</span></div>`;
     cart = {};
+    const trackPhone = $("f-phone").value.trim();
     go(6);
+    startTracking(order.number, trackPhone, "track-live");
   } catch (err) {
     const e = $("e5"); e.style.display = "block"; e.textContent = err.message || "No se pudo enviar el pedido. Inténtalo de nuevo.";
     btn.disabled = false; btn.textContent = "✅ Confirmar pedido";
   }
 }
 load();
+
+// ---- Rastreador de pedido (/sigue) ----
+const TRACK_STAGES = [
+  { key: "nuevo",      label: "Recibido",       icon: "🧾" },
+  { key: "preparando", label: "En preparación", icon: "👨‍🍳" },
+  { key: "listo",      label: "Listo",          icon: "🔔" },
+  { key: "entregado",  label: "Entregado",      icon: "✅" }
+];
+let trackTimer = null;
+
+function stopTracking() { if (trackTimer) { clearInterval(trackTimer); trackTimer = null; } }
+
+async function pollTrack(number, phone, mountId) {
+  const mount = $(mountId);
+  const r = await fetch("/api/track?number=" + encodeURIComponent(number) + "&phone=" + encodeURIComponent(phone));
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "No se pudo cargar el pedido.");
+  renderTracker(mount, data);
+  return data;
+}
+
+function startTracking(number, phone, mountId) {
+  stopTracking();
+  const tick = async () => {
+    try {
+      const d = await pollTrack(number, phone, mountId);
+      if (d.status === "entregado" || d.status === "cancelado") stopTracking();
+    } catch (err) {
+      $(mountId).innerHTML = `<div class="err" style="display:block">⚠️ ${err.message}</div>`;
+      stopTracking();
+    }
+  };
+  tick();
+  trackTimer = setInterval(tick, 10000); // refresco en vivo cada 10 segundos
+}
+
+function renderTracker(mount, d) {
+  if (d.status === "cancelado") {
+    mount.innerHTML = `<div class="track-cancel"><div style="font-size:44px">✖️</div><h3 style="margin:8px 0;color:#7a1f1f">Pedido cancelado</h3><p style="font-size:13px;color:#7a1f1f">Tu pedido ${d.number} fue cancelado. Si tienes dudas, llámanos.</p></div>`;
+    return;
+  }
+  const idx = TRACK_STAGES.findIndex(s => s.key === d.status);
+  const cur = idx >= 0 ? idx : 0;
+  const stagesHtml = TRACK_STAGES.map((s, i) => {
+    const cls = i < cur ? "done" : (i === cur ? "done now" : "");
+    return `<div class="stage ${cls}"><div class="dot">${i < cur ? "✓" : s.icon}</div><div class="lb">${s.label}</div></div>`;
+  }).join("");
+  let html = `<div class="track-card">
+    <div class="track-head"><div class="tn">${d.number}</div><div class="ts">${d.name} · 🏪 Recoger · ${fmt(d.total)}</div></div>
+    <div class="stages">${stagesHtml}</div>`;
+  if (d.status === "listo") {
+    html += `<div class="celebrate"><div class="cj">🎉</div><h3>¡Tu pedido está listo!</h3><p>Pasa a recogerlo — ¡está calientito! 🥐</p></div>`;
+  } else if (d.status === "entregado") {
+    html += `<div class="track-live">✅ ¡Buen provecho! Gracias por pedir en Sweet Bakery 🥐</div>`;
+  } else {
+    html += `<div class="track-live"><span class="blip"></span>Actualizando en vivo…</div>`;
+  }
+  html += `</div>`;
+  mount.innerHTML = html;
+}
+
+function openLookup() {
+  stopTracking();
+  $("track-lookup").style.display = "block";
+  $("track-view").innerHTML = "";
+  $("e7").style.display = "none";
+  go(7);
+}
+
+async function lookupOrder() {
+  const number = $("t-number").value.trim(), phone = $("t-phone").value.trim();
+  const e = $("e7");
+  if (!number || !phone) { e.style.display = "block"; e.textContent = "Escribe tu número de pedido y tu teléfono."; return; }
+  e.style.display = "none";
+  try {
+    await pollTrack(number, phone, "track-view");
+    $("track-lookup").style.display = "none";
+    startTracking(number, phone, "track-view");
+  } catch (err) { e.style.display = "block"; e.textContent = "⚠️ " + err.message; }
+}
 </script>
 <!-- Product detail modal -->
 <div class="d-ov" id="d-ov" onclick="if(event.target===this)closeDetail()">

@@ -562,6 +562,17 @@ async function getOrder(id) {
   return row ? mapOrder(row) : null;
 }
 
+// Búsqueda pública por número (para el rastreador /sigue del cliente).
+// La verificación número+teléfono la hace la ruta /api/track.
+async function getOrderByNumber(number) {
+  if (kind === "pg") {
+    const r = await pool.query("SELECT * FROM orders WHERE number = $1", [number]);
+    return r.rows.length ? mapOrder(r.rows[0]) : null;
+  }
+  const row = sdb.prepare("SELECT * FROM orders WHERE number = ?").get(number);
+  return row ? mapOrder(row) : null;
+}
+
 async function updateOrderStatus(id, status) {
   if (kind === "pg") {
     const r = await pool.query("UPDATE orders SET status = $1 WHERE id = $2 RETURNING *", [status, id]);
@@ -604,6 +615,7 @@ module.exports = {
   createOrder,
   listOrders,
   getOrder,
+  getOrderByNumber,
   updateOrderStatus,
   deleteOrder,
   deleteAllOrders
