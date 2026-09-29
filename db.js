@@ -150,8 +150,181 @@ function applyImageFixes(catalog) {
   return fixed;
 }
 
-// Migración de imágenes de departamento (owner-safe): solo si la imagen actual
-// es EXACTAMENTE el placeholder viejo. Idempotente.
+// Migración de traducción v5 (2026-09-28, pedido de Portal): todo el
+// storefront del cliente al español. Owner-safe: cada campo solo se
+// traduce si su valor actual es EXACTAMENTE el inglés original de la
+// semilla. Si la dueña ya editó algo en /store, se respeta. Idempotente.
+const ES_DEPT_NAMES = {
+  "sandwiches": ["Sandwiches", "Sándwiches"],
+  "pastelitos": ["Pastelitos & Bakery", "Pastelitos y Panadería"],
+  "cafe": ["Cuban Coffee", "Café Cubano"],
+  "desayunos": ["Breakfast", "Desayunos"],
+  "batidos": ["Shakes & Juices", "Batidos y Jugos"]
+};
+const ES_CAT_NAMES = {
+  "pressed-sandwiches": ["Pressed on Cuban bread", "Prensados en pan cubano"],
+  "croquetas-ham": ["Ham croquettes", "Croquetas de jamón"]
+};
+// id -> { campo: [inglesOriginal, espanolNuevo] }
+const ES_ITEM_FIELDS = {
+  "cuban-sandwich": {
+    unit: ["sandwich", "sándwich"],
+    tag: ["The icon", "El ícono"],
+    desc: ["Slow-roasted pork, ham, Swiss cheese, pickles and mustard, pressed hot on fresh Cuban bread.",
+           "Cerdo asado a fuego lento, jamón, queso suizo, pepinillos y mostaza, prensado caliente en pan cubano fresco."] },
+  "media-noche": {
+    unit: ["sandwich", "sándwich"],
+    desc: ["The Cuban sandwich's sweet cousin — same fillings on soft, sweet egg bread, pressed golden.",
+           "La prima dulce del sándwich cubano — el mismo relleno en pan de huevo suave y dulce, prensado dorado."] },
+  "pan-bistec": {
+    unit: ["sandwich", "sándwich"],
+    desc: ["Thin-sliced seasoned steak with grilled onions, pressed on Cuban bread.",
+           "Bistec sazonado en lascas finas con cebolla a la plancha, prensado en pan cubano."] },
+  "pan-lechon": {
+    unit: ["sandwich", "sándwich"],
+    desc: ["Juicy roast pork with mojo onions, pressed on Cuban bread.",
+           "Lechón jugoso con cebolla en mojo, prensado en pan cubano."] },
+  "pan-croqueta": {
+    unit: ["sandwich", "sándwich"],
+    desc: ["Crispy ham croquettes tucked into Cuban bread — the working-class classic.",
+           "Croquetas de jamón crujientes dentro del pan cubano — el clásico del trabajador."] },
+  "croq-6": {
+    unit: ["order", "orden"],
+    tag: ["Fried to order", "Fritas al momento"],
+    desc: ["Golden, creamy ham croquettes — fried to order. Acclaimed as some of the best in Florida.",
+           "Croquetas de jamón doradas y cremosas — fritas al momento. Dicen que son de las mejores de Florida."] },
+  "croq-12": {
+    unit: ["order", "orden"],
+    desc: ["A dozen of our famous ham croquettes. For the table — or just for you.",
+           "Una docena de nuestras famosas croquetas de jamón. Para la mesa — o solo para ti."] },
+  "past-guayaba": {
+    unit: ["each", "c/u"],
+    desc: ["Flaky puff pastry filled with sweet guava paste.",
+           "Hojaldre crujiente relleno de dulce pasta de guayaba."] },
+  "past-queso": {
+    unit: ["each", "c/u"],
+    desc: ["Flaky pastry with a creamy cheese filling.",
+           "Hojaldre con relleno cremoso de queso."] },
+  "past-carne": {
+    unit: ["each", "c/u"],
+    desc: ["Seasoned ground beef wrapped in flaky pastry.",
+           "Carne molida sazonada envuelta en hojaldre."] },
+  "past-guayaba-queso": {
+    unit: ["each", "c/u"],
+    tag: ["Customer favorite", "Favorita de la clientela"],
+    desc: ["The perfect marriage: sweet guava and creamy cheese in flaky pastry.",
+           "El matrimonio perfecto: guayaba dulce y queso cremoso en hojaldre."] },
+  "pizza-pastel": {
+    unit: ["each", "c/u"],
+    desc: ["Pizza flavors in a flaky pastelito — cheese, sauce and pepperoni.",
+           "Sabor a pizza en un pastelito de hojaldre — queso, salsa y pepperoni."] },
+  "emp-jamon-queso": {
+    unit: ["each", "c/u"],
+    desc: ["Ham and cheese empanada, baked golden.",
+           "Empanada de jamón y queso, horneada dorada."] },
+  "emp-pollo": {
+    unit: ["each", "c/u"],
+    desc: ["Shredded chicken empanada, baked golden.",
+           "Empanada de pollo deshebrado, horneada dorada."] },
+  "emp-carne": {
+    unit: ["each", "c/u"],
+    desc: ["Seasoned beef empanada, baked golden.",
+           "Empanada de carne sazonada, horneada dorada."] },
+  "cangrejito-jamon": {
+    unit: ["each", "c/u"],
+    tag: ["Customer favorite", "Favorita de la clientela"],
+    desc: ["Flaky golden crescent stuffed with ham and cheese — the Cuban bakery classic.",
+           "Medialuna dorada de hojaldre rellena de jamón y queso — el clásico de la panadería cubana."] },
+  "cangrejito-chorizo": {
+    unit: ["each", "c/u"],
+    desc: ["Flaky golden crescent stuffed with savory chorizo.",
+           "Medialuna dorada de hojaldre rellena de chorizo sabroso."] },
+  "cafecito": {
+    unit: ["shot", "tacita"],
+    desc: ["Strong, sweet Cuban espresso. The 3:05 ritual.",
+           "Café cubano fuerte y dulce. El ritual de las 3:05."] },
+  "cortadito": {
+    unit: ["cup", "taza"],
+    desc: ["Cuban espresso cut with steamed milk.",
+           "Café cubano cortado con leche al vapor."] },
+  "colada": {
+    unit: ["4oz", "4 oz"],
+    desc: ["A full round of cafecito for sharing — the Cuban way.",
+           "Una ronda completa de cafecito para compartir — a lo cubano."] },
+  "cafe-leche-s": {
+    name: ["Café con Leche (Small)", "Café con Leche (Pequeño)"],
+    unit: ["cup", "taza"],
+    desc: ["Cuban coffee with hot milk. Made for dunking tostadas.",
+           "Café cubano con leche caliente. Hecho para mojar tostadas."] },
+  "cafe-leche-l": {
+    name: ["Café con Leche (Large)", "Café con Leche (Grande)"],
+    unit: ["cup", "taza"],
+    desc: ["The big morning cup of café con leche.",
+           "La taza grande de la mañana de café con leche."] },
+  "huevos-fritos": {
+    unit: ["plate", "plato"],
+    desc: ["Fried eggs served with Cuban toast.",
+           "Huevos fritos servidos con tostada cubana."] },
+  "huevos-revueltos": {
+    unit: ["plate", "plato"],
+    desc: ["Scrambled eggs with ham, served with Cuban toast.",
+           "Huevos revueltos con jamón, servidos con tostada cubana."] },
+  "tortilla-espanola": {
+    unit: ["plate", "plato"],
+    desc: ["Classic Spanish potato omelet, served with Cuban toast.",
+           "Clásica tortilla española de papa, servida con tostada cubana."] },
+  "tostadas": {
+    unit: ["order", "orden"],
+    desc: ["Buttered, pressed Cuban toast — made for dunking in café con leche.",
+           "Tostada cubana con mantequilla y prensada — hecha para mojar en el café con leche."] },
+  "tortilla-gusto": {
+    unit: ["plate", "plato"],
+    desc: ["Omelet your way — tell us your fillings in the order note.",
+           "Tortilla a tu gusto — dinos el relleno en la nota del pedido."] },
+  "batido-mango": {
+    unit: ["glass", "vaso"],
+    desc: ["Fresh mango milkshake, blended thick.",
+           "Batido de mango fresco, bien espeso."] },
+  "batido-mamey": {
+    unit: ["glass", "vaso"],
+    desc: ["Creamy mamey milkshake — a Cuban classic.",
+           "Batido cremoso de mamey — un clásico cubano."] },
+  "batido-guayaba": {
+    unit: ["glass", "vaso"],
+    desc: ["Sweet guava milkshake.",
+           "Batido dulce de guayaba."] },
+  "guarapo": {
+    unit: ["glass", "vaso"],
+    tag: ["Fresh pressed", "Recién exprimido"],
+    desc: ["Fresh-pressed sugarcane juice. Pure Cuba in a glass.",
+           "Jugo de caña recién exprimido. Cuba pura en un vaso."] },
+  "jugo-naranja": {
+    name: ["Freshly Squeezed Orange Juice", "Jugo de Naranja Recién Exprimido"],
+    unit: ["glass", "vaso"],
+    tag: ["Fresh squeezed", "Recién exprimido"],
+    desc: ["Freshly squeezed orange juice, served chilled — pure sunshine in a glass.",
+           "Jugo de naranja recién exprimido, servido frío — puro sol en un vaso."] }
+};
+function applySpanishMigration(catalog) {
+  let n = 0;
+  for (const d of (catalog && catalog.departments) || []) {
+    const dn = ES_DEPT_NAMES[d.id];
+    if (dn && d.name === dn[0]) { d.name = dn[1]; n++; }
+    for (const c of d.categories || []) {
+      const cn = ES_CAT_NAMES[c.id];
+      if (cn && c.name === cn[0]) { c.name = cn[1]; n++; }
+      for (const it of c.items || []) {
+        const fx = it && ES_ITEM_FIELDS[it.id];
+        if (!fx) continue;
+        for (const f of ["name", "desc", "unit", "tag"]) {
+          const pair = fx[f];
+          if (pair && it[f] === pair[0]) { it[f] = pair[1]; n++; }
+        }
+      }
+    }
+  }
+  return n;
+}
 // v3 (2026-09-28): tile de Pastelitos & Bakery usa la foto propia de Portal.
 const DEPT_IMAGE_FIXES = {
   "pastelitos": { old: "dept-pastelitos.jpg", new: "portal-pastelitos-tray.jpg" }
@@ -202,9 +375,10 @@ async function init() {
       const m = mergeCatalog(live, SEED_CATALOG);
       const fx = applyImageFixes(m.catalog);
       const dfx = applyDeptImageFixes(m.catalog);
+      const esn = applySpanishMigration(m.catalog);
       await kvSet("catalog", JSON.stringify(m.catalog));
       await kvSet("catalog_version", String(CATALOG_VERSION));
-      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos. Lo del dueño intacto.`);
+      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos, ${esn} campos traducidos. Lo del dueño intacto.`);
     }
   }
   if (!(await kvGet("order_seq"))) await kvSet("order_seq", "0");

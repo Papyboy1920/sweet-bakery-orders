@@ -118,23 +118,21 @@ function findItem(catalog, itemId) {
 }
 
 // Público: los clientes crean pedidos sin clave.
+// Solo recogida (Portal, 2026-09-28) — delivery eliminado del storefront.
 app.post("/api/orders", async (req, res) => {
   const { type, items, customer, payment, notes } = req.body || {};
 
-  if (type !== "delivery" && type !== "pickup") {
-    return res.status(400).json({ error: "Invalid order type." });
+  if (type !== "pickup") {
+    return res.status(400).json({ error: "Tipo de pedido inválido." });
   }
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "The order has no items." });
+    return res.status(400).json({ error: "El pedido no tiene artículos." });
   }
   if (!customer || !String(customer.name || "").trim() || !String(customer.phone || "").trim()) {
-    return res.status(400).json({ error: "Name and phone are required." });
-  }
-  if (type === "delivery" && !String(customer.address || "").trim()) {
-    return res.status(400).json({ error: "Delivery address is required." });
+    return res.status(400).json({ error: "Nombre y teléfono son obligatorios." });
   }
   if (payment !== "cash" && payment !== "transfer") {
-    return res.status(400).json({ error: "Invalid payment method." });
+    return res.status(400).json({ error: "Método de pago inválido." });
   }
 
   // Resolver artículos contra el catálogo (precio al momento del pedido)
@@ -143,11 +141,11 @@ app.post("/api/orders", async (req, res) => {
   for (const line of items) {
     const item = findItem(catalog, line.itemId);
     if (!item || !item.active) {
-      return res.status(400).json({ error: `Item not available: ${line.itemId}` });
+      return res.status(400).json({ error: `Artículo no disponible: ${line.itemId}` });
     }
     const qty = Number(line.qty);
     if (!qty || qty <= 0) {
-      return res.status(400).json({ error: "Invalid quantity." });
+      return res.status(400).json({ error: "Cantidad inválida." });
     }
     resolved.push({
       itemId: item.id,
