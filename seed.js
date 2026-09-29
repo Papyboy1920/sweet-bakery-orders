@@ -19,37 +19,43 @@
 // solo recogida.
 // ============================================================
 
-const CATALOG_VERSION = 6;
+const CATALOG_VERSION = 7;
 
-// v6 (2026-09-29, pedido de Portal): nuevo depto "De la Cocina Dulce"
-// (platos calientes de cocina) — precios BORRADOR, fotos stand-in
-// (Portal enviará fotos reales). Se ubica primero en el catálogo.
+// v7 (2026-09-29, pedido de Portal): "De la Cocina Dulce" →
+// "Especiales de la Cocina Caliente" (especiales de almuerzo, no platos
+// full-price). Precios de especial $5.99–$7.99 (borrador, Portal confirma
+// en /store), fotos AI que sí parecen cada plato (Portal enviará las
+// originales), descripciones honestas. Se ubica primero en el catálogo.
 
 const SEED_CATALOG = {
   departments: [
     {
       id: "cocina-dulce",
-      name: "De la Cocina Dulce",
-      icon: "🍛",
+      name: "Especiales de la Cocina Caliente",
+      icon: "🔥",
       iconImg: "portal-display-case.jpg",
       categories: [
         {
           id: "platos-calientes",
           name: "Platos calientes",
           items: [
-            // ⚠️ PRECIOS BORRADOR + FOTOS STAND-IN (Portal confirma precios en /store
+            // ⚠️ PRECIOS BORRADOR + FOTOS AI STAND-IN (Portal confirma precios en /store
             // y enviará fotos reales de cada plato).
-            { id: "arroz-gris-masita", name: "Arroz con Gris con Masita de Cerdo y Cebollita", price: 12.99, unit: "plato", active: true, image: "croq-12.jpg",
-              tag: "🔥 Nuevo",
-              desc: "Arroz con gris esponjoso con masita de cerdo dorada y cebollita — el plato que abraza." },
-            { id: "bistec-encebollado", name: "Bistec Encebollado con Arroz Amarillo", price: 13.99, unit: "plato", active: true, image: "pan-bistec.jpg",
-              desc: "Bistec jugoso en lascas con cebolla a la plancha sobre arroz amarillo — pura casa." },
-            { id: "pollo-asado-arroz", name: "Pollo Asado con Arroz y Frijoles Negros", price: 11.99, unit: "plato", active: true, image: "tortilla-gusto.jpg",
-              desc: "Pollo asado al horno con arroz y frijoles negros — el clásico que nunca falla." },
-            { id: "ropa-vieja", name: "Ropa Vieja con Arroz Blanco y Plátanos Maduros", price: 13.99, unit: "plato", active: true, image: "tortilla-espanola.jpg",
-              desc: "Ropa vieja deshebrada en su salsa con arroz blanco y plátanos maduros dulces." },
-            { id: "lechon-yuca-mojo", name: "Lechón Asado con Yuca y Mojo", price: 12.99, unit: "plato", active: true, image: "pan-lechon.jpg",
-              desc: "Lechón asado jugoso con yuca al mojo de ajo — sabor de Nochebuena todo el año." }
+            { id: "arroz-gris-masita", name: "Arroz con Gris con Masita de Cerdo y Cebollita", price: 5.99, unit: "plato", active: true, image: "especial-congri-masita.jpg",
+              tag: "⭐ Especial",
+              desc: "Congrí con masitas de cerdo doradas y cebollita. Especial del día." },
+            { id: "bistec-encebollado", name: "Bistec Encebollado con Arroz Amarillo", price: 6.99, unit: "plato", active: true, image: "especial-bistec-encebollado.jpg",
+              tag: "⭐ Especial",
+              desc: "Bistec en lascas con cebolla a la plancha, servido con arroz amarillo." },
+            { id: "pollo-asado-arroz", name: "Pollo Asado con Arroz y Frijoles Negros", price: 5.99, unit: "plato", active: true, image: "especial-pollo-asado.jpg",
+              tag: "⭐ Especial",
+              desc: "Pollo asado con arroz blanco y frijoles negros. El almuerzo de todos los días." },
+            { id: "ropa-vieja", name: "Ropa Vieja con Arroz Blanco y Plátanos Maduros", price: 7.99, unit: "plato", active: true, image: "especial-ropa-vieja.jpg",
+              tag: "⭐ Especial",
+              desc: "Ropa vieja en su salsa con arroz blanco y plátanos maduros." },
+            { id: "lechon-yuca-mojo", name: "Lechón Asado con Yuca y Mojo", price: 6.99, unit: "plato", active: true, image: "especial-lechon-yuca.jpg",
+              tag: "⭐ Especial",
+              desc: "Lechón asado con yuca hervida y mojo de ajo." }
           ]
         }
       ]

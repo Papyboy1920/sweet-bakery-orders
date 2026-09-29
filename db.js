@@ -354,6 +354,69 @@ function applyDeptOrder(catalog) {
   return false;
 }
 
+// ---------- Corrección v7: Especiales de la Cocina Caliente ----------
+// (2026-09-29, pedido de Portal): el depto "De la Cocina Dulce" se
+// renombra a "Especiales de la Cocina Caliente"; los 5 ítems pasan a
+// precios de especial ($5.99–$7.99), fotos que sí parecen cada plato y
+// descripciones honestas. Owner-safe: cada campo solo cambia si su valor
+// actual es EXACTAMENTE el borrador v6. Si el dueño ya editó algo en
+// /store, se respeta. Idempotente.
+const V7_DEPT_FIX = {
+  id: "cocina-dulce",
+  name: ["De la Cocina Dulce", "Especiales de la Cocina Caliente"],
+  icon: ["🍛", "🔥"]
+};
+const V7_ITEM_FIXES = {
+  "arroz-gris-masita": {
+    price: [12.99, 5.99],
+    image: ["croq-12.jpg", "especial-congri-masita.jpg"],
+    tag: ["🔥 Nuevo", "⭐ Especial"],
+    desc: ["Arroz con gris esponjoso con masita de cerdo dorada y cebollita — el plato que abraza.",
+           "Congrí con masitas de cerdo doradas y cebollita. Especial del día."] },
+  "bistec-encebollado": {
+    price: [13.99, 6.99],
+    image: ["pan-bistec.jpg", "especial-bistec-encebollado.jpg"],
+    desc: ["Bistec jugoso en lascas con cebolla a la plancha sobre arroz amarillo — pura casa.",
+           "Bistec en lascas con cebolla a la plancha, servido con arroz amarillo."] },
+  "pollo-asado-arroz": {
+    price: [11.99, 5.99],
+    image: ["tortilla-gusto.jpg", "especial-pollo-asado.jpg"],
+    desc: ["Pollo asado al horno con arroz y frijoles negros — el clásico que nunca falla.",
+           "Pollo asado con arroz blanco y frijoles negros. El almuerzo de todos los días."] },
+  "ropa-vieja": {
+    price: [13.99, 7.99],
+    image: ["tortilla-espanola.jpg", "especial-ropa-vieja.jpg"],
+    desc: ["Ropa vieja deshebrada en su salsa con arroz blanco y plátanos maduros dulces.",
+           "Ropa vieja en su salsa con arroz blanco y plátanos maduros."] },
+  "lechon-yuca-mojo": {
+    price: [12.99, 6.99],
+    image: ["pan-lechon.jpg", "especial-lechon-yuca.jpg"],
+    desc: ["Lechón asado jugoso con yuca al mojo de ajo — sabor de Nochebuena todo el año.",
+           "Lechón asado con yuca hervida y mojo de ajo."] }
+};
+function applyV7Fixes(catalog) {
+  let n = 0;
+  const depts = (catalog && catalog.departments) || [];
+  const d = depts.find((x) => x && x.id === V7_DEPT_FIX.id);
+  if (d) {
+    if (d.name === V7_DEPT_FIX.name[0]) { d.name = V7_DEPT_FIX.name[1]; n++; }
+    if (d.icon === V7_DEPT_FIX.icon[0]) { d.icon = V7_DEPT_FIX.icon[1]; n++; }
+    for (const c of d.categories || []) {
+      for (const it of c.items || []) {
+        const fx = it && V7_ITEM_FIXES[it.id];
+        if (!fx) continue;
+        for (const f of ["price", "image", "desc", "tag"]) {
+          const pair = fx[f];
+          if (pair && it[f] === pair[0]) { it[f] = pair[1]; n++; }
+        }
+        // Los especiales llevan su estrella aunque el tag viniera vacío.
+        if (!it.tag) { it.tag = "⭐ Especial"; n++; }
+      }
+    }
+  }
+  return n;
+}
+
 async function init() {
   if (process.env.DATABASE_URL) {
     const { Pool } = require("pg");
@@ -389,10 +452,11 @@ async function init() {
       const fx = applyImageFixes(m.catalog);
       const dfx = applyDeptImageFixes(m.catalog);
       const esn = applySpanishMigration(m.catalog);
+      const v7 = applyV7Fixes(m.catalog);
       const reo = applyDeptOrder(m.catalog);
       await kvSet("catalog", JSON.stringify(m.catalog));
       await kvSet("catalog_version", String(CATALOG_VERSION));
-      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos, ${esn} campos traducidos${reo ? ", depto Cocina Dulce al frente" : ""}. Lo del dueño intacto.`);
+      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos, ${esn} campos traducidos, ${v7} correcciones v7${reo ? ", Especiales de la Cocina Caliente al frente" : ""}. Lo del dueño intacto.`);
     }
   }
   if (!(await kvGet("order_seq"))) await kvSet("order_seq", "0");
