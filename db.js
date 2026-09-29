@@ -341,6 +341,19 @@ function applyDeptImageFixes(catalog) {
   return fixed;
 }
 
+// v6 (2026-09-29, pedido de Portal): "De la Cocina Dulce" va primero
+// en el catálogo. Solo reordena — nunca toca campos del dueño.
+function applyDeptOrder(catalog) {
+  const depts = (catalog && catalog.departments) || [];
+  const i = depts.findIndex((d) => d && d.id === "cocina-dulce");
+  if (i > 0) {
+    const [d] = depts.splice(i, 1);
+    depts.unshift(d);
+    return true;
+  }
+  return false;
+}
+
 async function init() {
   if (process.env.DATABASE_URL) {
     const { Pool } = require("pg");
@@ -376,9 +389,10 @@ async function init() {
       const fx = applyImageFixes(m.catalog);
       const dfx = applyDeptImageFixes(m.catalog);
       const esn = applySpanishMigration(m.catalog);
+      const reo = applyDeptOrder(m.catalog);
       await kvSet("catalog", JSON.stringify(m.catalog));
       await kvSet("catalog_version", String(CATALOG_VERSION));
-      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos, ${esn} campos traducidos. Lo del dueño intacto.`);
+      console.log(`[sweet-bakery] Catálogo fusionado (v${v} → v${CATALOG_VERSION}): +${m.added} nuevos, ${m.filled} campos rellenados, ${fx} fotos corregidas, ${dfx} tiles depto corregidos, ${esn} campos traducidos${reo ? ", depto Cocina Dulce al frente" : ""}. Lo del dueño intacto.`);
     }
   }
   if (!(await kvGet("order_seq"))) await kvSet("order_seq", "0");
