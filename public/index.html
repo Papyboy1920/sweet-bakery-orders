@@ -27,6 +27,14 @@
   .type-card.sel { border-color:var(--caramel); box-shadow:0 0 0 2px var(--caramel) inset; background:var(--soft); }
   .type-card .ic { font-size:38px; } .type-card .t { font-weight:700; margin-top:8px; } .type-card .s { font-size:12px; color:var(--mut); margin-top:4px; }
   .type-card.big { padding:36px 14px; }
+  /* ---- Enticing order hero card (Portal, 2026-09-29) ---- */
+  .order-hero { position:relative; display:block; width:100%; min-height:200px; border-radius:16px; overflow:hidden; cursor:pointer; border:2px solid var(--line); box-shadow:0 4px 18px rgba(160,95,28,.28); background:#2e1a0c url("images/cuban-sandwich.jpg") center/cover no-repeat; }
+  .order-hero:active { transform:scale(.985); }
+  .order-hero .oh-shade { position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,10,4,.18) 0%, rgba(20,10,4,.80) 100%); }
+  .order-hero .oh-body { position:relative; z-index:1; padding:92px 18px 20px; color:#fff; }
+  .order-hero .oh-t { font-size:31px; font-weight:800; letter-spacing:.5px; text-shadow:0 2px 10px rgba(0,0,0,.65); }
+  .order-hero .oh-s { font-size:14px; margin-top:6px; opacity:.96; text-shadow:0 1px 6px rgba(0,0,0,.65); }
+  .order-hero .oh-cta { display:inline-block; margin-top:12px; background:linear-gradient(135deg,var(--gold),var(--caramel)); color:#3a2413; font-weight:800; padding:12px 26px; border-radius:999px; font-size:16px; box-shadow:0 3px 10px rgba(0,0,0,.45); }
   .dept-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .dept { background:var(--card); border:2px solid var(--line); border-radius:14px; padding:18px 8px; text-align:center; cursor:pointer; }
   .dept.sel { border-color:var(--caramel); box-shadow:0 0 0 2px var(--caramel) inset; background:var(--soft); }
@@ -120,8 +128,13 @@
   <!-- STEP 1: pedir -->
   <section class="step on" id="s1">
     <h2>¡Bienvenido a Sweet Bakery! 🥐</h2>
-    <div class="type-card big" id="tc-pickup" onclick="startPickup()">
-      <div class="ic">🏪</div><div class="t" style="font-size:26px">Pedir aquí</div><div class="s">Recoger en 1467 N Krome Ave, Homestead</div>
+    <div class="order-hero" id="tc-pickup" onclick="startPickup()" role="button" aria-label="Ordenar aquí para recoger">
+      <div class="oh-shade"></div>
+      <div class="oh-body">
+        <div class="oh-t">Ordenar aquí 🥐</div>
+        <div class="oh-s">📍 Recoger en 1467 N Krome Ave, Homestead</div>
+        <span class="oh-cta">Empezar mi pedido →</span>
+      </div>
     </div>
     <div class="note-box" style="margin-top:14px">🥐 <b>Fresco de nuestra cocina.</b><br>Sándwiches prensados, pastelitos, cafecito y más — a lo cubano. 💛</div>
   </section>
